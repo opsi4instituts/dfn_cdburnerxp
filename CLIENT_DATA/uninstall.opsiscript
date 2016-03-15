@@ -1,0 +1,58 @@
+[Initial]
+LogLevel=9
+;  Log Errors in Logfile but don't abort:
+ExitOnError=false
+; Show syntax errors in the script:
+ScriptErrorMessages=on
+; Dont trace step by step through the script:
+TraceMode=off
+; let started programs run in front of the winst window
+StayOnTop=false
+ 
+[Actions]
+requiredWinstVersion >= "4.10.8.6"
+ 
+DefVar $UninstallProgram32$
+DefVar $LogDir$
+DefVar $ExitCode$
+DefVar $ProductId$
+DefVar $InstallDir32$
+DefVar $InstallDir64$
+DefVar $LicenseRequired$
+DefVar $LicensePool$
+DefVar $INST_SystemType$
+DefVar $INST_architecture$
+DefVar $Uninst_Cmd$
+DefVar $Uninst_Prg$
+DefVar $PrettyName$
+ 
+Set $INST_SystemType$ = GetSystemType
+set $INST_architecture$ = GetProductProperty("install_architecture","system specific")
+ 
+ 
+Set $LogDir$ = "%SystemDrive%\tmp"
+ 
+; ----------------------------------------------------------------
+; - Please edit the following values                             -
+; ----------------------------------------------------------------
+Set $ProductId$         = "cdburnerxp"
+Set $PrettyName$ 				= "CDBurnerXP"
+Set $InstallDir32$      = "%ProgramFiles32Dir%\CDBurnerXP\"
+Set $InstallDir64$      = "%ProgramFiles64Dir%\CDBurnerXP\"
+Set $LicenseRequired$   = "false"
+Set $LicensePool$       = "p_" + $ProductId$
+Set $Uninst_Prg$      = "unins000.exe"
+Set $Uninst_Cmd$      = '/SILENT /SUPPRESSMSGBOXES /NORESTART'
+; ----------------------------------------------------------------
+ 
+comment "Show product picture"
+ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$
+ 
+Message "Deinstalliere " + $ProductId$ + ". Bitte etwas Geduld..."
+comment "Start uninstall sub section"
+Sub "%ScriptPath%\delsub.opsiscript"
+ 
+if $LicenseRequired$ = "true"
+        comment "Licensing required, free license used"
+        Sub_free_license
+endif

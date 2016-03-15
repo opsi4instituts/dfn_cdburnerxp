@@ -1,0 +1,153 @@
+[Initial]
+SetLogLevel=9
+;  Log Errors in Logfile but don't abort:
+ExitOnError=false
+; Show syntax errors in the script:
+ScriptErrorMessages=on
+; Dont trace step by step through the script:
+TraceMode=off
+; let started programs run in front of the winst window
+StayOnTop=false
+ 
+ 
+[Actions]
+requiredWinstVersion >= "4.10.8.6"
+ 
+DefVar $LogDir$
+DefVar $ProductId$
+DefVar $MinimumSpace$
+DefVar $InstallDir32$
+DefVar $InstallDir64$
+DefVar $ExitCode$
+DefVar $LicenseRequired$
+DefVar $LicenseKey$
+DefVar $LicensePool$
+DefVar $INST_SystemType$
+DefVar $INST_architecture$
+DefVar $Inst_Cmd$
+DefVar $Inst_Prg64$
+DefVar $Inst_Prg32$
+DefVar $Uninst_Cmd$
+DefVar $Uninst_Prg$
+DefVar $PrettyName$
+DefVar $Version$
+DefVar $PackageVersion$
+DefVar $DesktopIcon$
+
+Set $INST_SystemType$ = GetSystemType
+set $INST_architecture$ = GetProductProperty("install_architecture","system specific")
+ 
+ 
+Set $LogDir$ = "%SystemDrive%\tmp"
+ 
+; ----------------------------------------------------------------
+; - Please edit the following values                             -
+; ----------------------------------------------------------------
+;$ProductId$ should be the name of the product in opsi
+; therefore please: only lower letters, no umlauts,
+; no white space use '-' as a seperator
+Set $ProductId$       = "cdburnerxp"
+Set $PrettyName$			= "CDBurnerXP"
+Set $PackageVersion$	= takeString(1, splitString ("%installingProdVersion%","-"))
+Set $Version$         = strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
+Set $MinimumSpace$    = "20 MB"
+Set $DesktopIcon$			= GetProductProperty("desktopicon", "true")
+
+; the path were we find the product after the installation
+Set $InstallDir32$    = "%ProgramFiles32Dir%\CDBurnerXP\"
+Set $InstallDir64$    = "%ProgramFiles64Dir%\CDBurnerXP\"
+Set $LicenseRequired$ = "false"
+Set $LicensePool$     = "p_" + $ProductId$
+
+Set $Uninst_Prg$      = "unins000.exe"
+Set $Inst_Cmd$        = '/VERYSILENT /LOADINF=%ScriptPath%\default_de.cfg'
+Set $Uninst_Cmd$      = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
+; ----------------------------------------------------------------
+
+if FileExists("%ScriptDrive%\lib\getproductmap.opsiinc")
+  ;  read product values from configserver, such as ProductVersion
+  setLogLevel = 7
+  include_insert "%ScriptDrive%\lib\getproductmap.opsiinc"
+  setLogLevel = 6
+  Set $Version$	= $ProductMap_ProductVersion$
+  comment "use GetProductMap-Version: "+ $Setupfile$
+endif
+
+Set $Inst_Prg32$ = "cdbxp_setup_" + $Version$ + "_minimal.exe"
+Set $Inst_Prg64$ = "cdbxp_setup_" + $Version$ + "_x64_minimal.exe"
+
+comment "Show product picture"
+ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$ + " " + $Version$
+
+if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
+        LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
+        isFatalError
+        ; Stop process and set installation status to failed
+else
+        if FileExists("%ScriptPath%\delsub.opsiscript")
+          comment "Start uninstall sub section"
+          Sub "%ScriptPath%\delsub.opsiscript"
+        endif
+ 
+        if $LicenseRequired$ = "true"
+                comment "Licensing required, reserve license and get license key"
+                Sub_get_licensekey
+        endif
+
+				Set $Inst_Cmd$ = '/VERYSILENT /LOADINF=%ScriptPath%\default_de.cfg'
+				
+				if (($INST_SystemType$ = "x86 System") and ($INST_architecture$ = "system specific")) or ($INST_architecture$ = "both") or ($INST_architecture$ = "32 only")
+					Message "Installing " + $ProductId$ + " 32 Bit..."
+					comment "Start setup program"
+					ChangeDirectory "%SCRIPTPATH%"
+					Winbatch_install_32
+					Sub_check_exitcode
+				endif
+
+				if ($INST_SystemType$ = "64 Bit System") and (($INST_architecture$ = "system specific") or ($INST_architecture$ = "both") or ($INST_architecture$ = "64 only"))
+					Message "Installing " + $ProductId$ + " 64 Bit..."
+					comment "Start setup program"
+					ChangeDirectory "%SCRIPTPATH%"
+					Winbatch_install_64
+					Sub_check_exitcode
+				endif
+				
+				if $DesktopIcon$ = "false"
+					Files_delete_desktop_icon
+				endif  
+endif
+ 
+[Files_delete_desktop_icon]
+del -f -c "%CommonDesktopDir%\CDBurnerXP.lnk"
+
+[Winbatch_install_64]
+%ScriptPath%\$Inst_Prg64$ $Inst_Cmd$
+ 
+[Winbatch_install_32]
+%ScriptPath%\$Inst_Prg32$ $Inst_Cmd$
+
+[Sub_check_exitcode]
+comment "Test for installation success via exit code"
+set $ExitCode$ = getLastExitCode
+if ($ExitCode$ = "0")
+        comment "Looks good: setup program gives exitcode zero"
+else
+        comment "Setup program gives a exitcode unequal zero: " + $ExitCode$
+        if ($ExitCode$ = "1605")
+                comment "ERROR_UNKNOWN_PRODUCT  1605    This action is only valid for products that are currently installed."
+                comment "Uninstall of a not installed product failed - no problem"
+        else
+                if ($ExitCode$ = "1641")
+                        comment "looks good: setup program gives exitcode 1641"
+                        comment "ERROR_SUCCESS_REBOOT_INITIATED 1641    The installer has initiated a restart. This message is indicative of a success."
+                else
+                        if ($ExitCode$ = "3010")
+                                comment "looks good: setup program gives exitcode 3010"
+                                comment "ERROR_SUCCESS_REBOOT_REQUIRED  3010    A restart is required to complete the install. This message is indicative of a success."
+                        else
+                                logError "Fatal: Setup program gives an unknown exitcode unequal zero: " + $ExitCode$
+                                isFatalError
+                        endif
+                endif
+        endif
+endif

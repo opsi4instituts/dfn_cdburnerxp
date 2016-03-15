@@ -1,0 +1,61 @@
+Message "Uninstalling " + $PrettyName$ 
+
+if FileExists("$InstallDir32$\$Uninst_Prg$")
+  comment "Removing "+$InstallDir32$
+  Winbatch_uninstall_32
+  sub_check_exitcode
+  Files_uninstall_32
+  sub_check_exitcode
+endif
+
+if FileExists("$InstallDir64$\$Uninst_Prg$")
+  comment "Removing "+$InstallDir64$
+  Winbatch_uninstall_64
+  sub_check_exitcode
+  Files_uninstall_64
+  sub_check_exitcode
+endif
+
+sub_check_exitcode
+
+  
+[Winbatch_uninstall_64]
+"$InstallDir64$\$Uninst_Prg$" $Uninst_Cmd$
+ 
+[Files_uninstall_64]
+delete -sf "$InstallDir64$\"
+ 
+[Winbatch_uninstall_64]
+"$InstallDir32$\$Uninst_Prg$" $Uninst_Cmd$
+ 
+[Files_uninstall_64]
+delete -sf "$InstallDir32$\"
+
+[Sub_check_exitcode]
+comment "Test for installation success via exit code"
+set $ExitCode$ = getLastExitCode
+; informations to exit codes see
+; http://msdn.microsoft.com/en-us/library/aa372835(VS.85).aspx
+; http://msdn.microsoft.com/en-us/library/aa368542.aspx
+if ($ExitCode$ = "0")
+        comment "Looks good: setup program gives exitcode zero"
+else
+        comment "Setup program gives a exitcode unequal zero: " + $ExitCode$
+        if ($ExitCode$ = "1605")
+                comment "ERROR_UNKNOWN_PRODUCT  1605    This action is only valid for products that are currently installed."
+                comment "Uninstall of a not installed product failed - no problem"
+        else
+                if ($ExitCode$ = "1641")
+                        comment "looks good: setup program gives exitcode 1641"
+                        comment "ERROR_SUCCESS_REBOOT_INITIATED 1641    The installer has initiated a restart. This message is indicative of a success."
+                else
+                        if ($ExitCode$ = "3010")
+                                comment "looks good: setup program gives exitcode 3010"
+                                comment "ERROR_SUCCESS_REBOOT_REQUIRED  3010    A restart is required to complete the install. This message is indicative of a success."
+                        else
+                                logError "Fatal: Setup program gives an unknown exitcode unequal zero: " + $ExitCode$
+                                isFatalError
+                        endif
+                endif
+        endif
+endif

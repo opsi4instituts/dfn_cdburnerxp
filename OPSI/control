@@ -1,0 +1,45 @@
+[Package]
+version: 1
+depends: 
+incremental: False
+
+[Product]
+type: localboot
+id: dfn_cdburnerxp
+name: CDBurnerXP
+description: Program for copying and burning CDs and DVDs.
+advice: 
+version: 4.5.6.6053
+priority: 0
+licenseRequired: False
+productClasses: 
+setupScript: setup.opsiscript
+uninstallScript: uninstall.opsiscript
+updateScript: 
+alwaysScript: 
+onceScript: 
+customScript: 
+userLoginScript: 
+
+[ProductProperty]
+type: unicode
+name: install_architecture
+multivalue: False
+editable: False
+description: Sets the installation architecture.
+values: ["32 only", "64 only", "both", "system specific"]
+default: ["system specific"]
+
+[ProductProperty]
+type: bool
+name: desktopicon
+description: Setting a desktop icon
+default: True
+
+[Changelog]
+cdburnerxp (4.5.4.5306-1) testing; urgency=low
+
+  * Initial version
+
+ -- Eric Esser <esser@wzb.eu> Tue, 23 Dec 2014 19:07:08 + 0100
+
