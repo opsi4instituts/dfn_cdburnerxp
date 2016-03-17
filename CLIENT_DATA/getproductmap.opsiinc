@@ -1,0 +1,47 @@
+; This sourcecode is partly owned by uib.de
+; and published under the Terms of the General Public License.
+; credits: http://www.opsi.org/en/credits/
+;
+; written by GEI (Detlef Krummel  opsi@gei.de)
+
+; for debugging 
+setLogLevel = 7
+DefStringList 	$ProductMap_List$
+Set 		$ProductMap_List$	= getProductMap
+setLogLevel = 6
+
+; --------- sample values ---------------------------------------------------------------------------
+; 0)id=owncloud				1)name=ownCloud			2)description=Win-Cloudclient	
+; 3)advice=(aktualisiert am 4.9.2014)	4)productversion=1.6.3.3721	5)packageversion=17		
+; 6)priority=0				7)installationstate=unknown	8)lastactionrequest=setup     
+; 9)lastactionresult=successful		10)installedversion=1.6.2.	11)installedpackage=16
+;12)installedmodificationtime=		13)actionrequest=setup
+
+DefVar 		$ProductMap_Id$
+Set 		$ProductMap_Id$				= getValue("id",			$ProductMap_List$)
+DefVar 		$ProductMap_Name$
+Set 		$ProductMap_Name$			= getValue("name",			$ProductMap_List$)
+DefVar 		$ProductMap_Description$
+Set 		$ProductMap_Description$		= getValue("description",		$ProductMap_List$)
+DefVar		$ProductMap_Advice$
+Set 		$ProductMap_Advice$			= getValue("advice",			$ProductMap_List$)
+DefVar		$ProductMap_ProductVersion$
+Set 		$ProductMap_ProductVersion$		= getValue("productversion",		$ProductMap_List$)
+DefVar		$ProductMap_PackageVersion$
+Set 		$ProductMap_PackageVersion$		= getValue("packageversion",		$ProductMap_List$)
+DefVar		$ProductMap_Priority$
+Set 		$ProductMap_Priority$			= getValue("priority",			$ProductMap_List$)
+DefVar 		$ProductMap_InstallationState$
+Set 		$ProductMap_InstallationState$		= getValue("installationstate",		$ProductMap_List$)
+DefVar 		$ProductMap_LastActionRequest$
+Set 		$ProductMap_LastActionRequest$		= getValue("lastactionrequest",		$ProductMap_List$)
+DefVar 		$ProductMap_LastActionResult$
+Set 		$ProductMap_LastActionResult$		= getValue("lastactionresult",		$ProductMap_List$)
+DefVar 		$ProductMap_InstalledVersion$
+Set 		$ProductMap_InstalledVersion$		= getValue("installedversion",		$ProductMap_List$)
+DefVar 		$ProductMap_InstalledPackage$
+Set 		$ProductMap_InstalledPackage$		= getValue("installedpackage",		$ProductMap_List$)
+DefVar 		$ProductMap_InstalledModificationTime$
+Set 		$ProductMap_InstalledModificationTime$	= getValue("installedmodificationtime",	$ProductMap_List$)
+DefVar 		$ProductMap_ActionRequest$
+Set 		$ProductMap_ActionRequest$		= getValue("actionrequest",		$ProductMap_List$)

@@ -1,5 +1,5 @@
 [Initial]
-LogLevel=9
+setLogLevel=9
 ;  Log Errors in Logfile but don't abort:
 ExitOnError=false
 ; Show syntax errors in the script:
@@ -25,10 +25,11 @@ DefVar $INST_architecture$
 DefVar $Uninst_Cmd$
 DefVar $Uninst_Prg$
 DefVar $PrettyName$
- 
+DefVar $CustomPostDeinstall$
+DefVar $TaskName$
+
 Set $INST_SystemType$ = GetSystemType
 set $INST_architecture$ = GetProductProperty("install_architecture","system specific")
- 
  
 Set $LogDir$ = "%SystemDrive%\tmp"
  
@@ -41,13 +42,16 @@ Set $InstallDir32$      = "%ProgramFiles32Dir%\CDBurnerXP\"
 Set $InstallDir64$      = "%ProgramFiles64Dir%\CDBurnerXP\"
 Set $LicenseRequired$   = "false"
 Set $LicensePool$       = "p_" + $ProductId$
-Set $Uninst_Prg$      = "unins000.exe"
-Set $Uninst_Cmd$      = '/SILENT /SUPPRESSMSGBOXES /NORESTART'
+Set $Uninst_Prg$        = "unins000.exe"
+Set $Uninst_Cmd$        = '/VERYSILENT /LOADINF=%ScriptPath%\default_de.cfg /LOG='+$LogDir$+"\"+$ProductId$+".uninstall_log.txt"
+Set $TaskName$          = "cdbxpp.exe" 
+
 ; ----------------------------------------------------------------
  
 comment "Show product picture"
 ShowBitmap "%ScriptPath%\" + $ProductId$ + ".png" $PrettyName$
- 
+Killtask $TaskName$
+
 Message "Deinstalliere " + $ProductId$ + ". Bitte etwas Geduld..."
 comment "Start uninstall sub section"
 Sub "%ScriptPath%\delsub.opsiscript"
@@ -55,4 +59,12 @@ Sub "%ScriptPath%\delsub.opsiscript"
 if $LicenseRequired$ = "true"
         comment "Licensing required, free license used"
         Sub_free_license
+endif
+
+comment "include custom post deinstall file"
+set $CustomPostDeinstall$ = getProductProperty("custom-post-deinstall","none")
+if not ($CustomPostDeinstall$ = "none")
+	if FileExists("%ScriptPath%\custom\" + $CustomPostDeinstall$)
+		include_insert "%ScriptPath%\custom\" + $CustomPostDeinstall$
+	endif
 endif

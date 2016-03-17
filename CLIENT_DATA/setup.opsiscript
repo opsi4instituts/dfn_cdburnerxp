@@ -1,5 +1,5 @@
 [Initial]
-SetLogLevel=9
+SetLogLevel=6
 ;  Log Errors in Logfile but don't abort:
 ExitOnError=false
 ; Show syntax errors in the script:
@@ -33,11 +33,12 @@ DefVar $PrettyName$
 DefVar $Version$
 DefVar $PackageVersion$
 DefVar $DesktopIcon$
+DefVar $CustomPostInstall$
+DefVar $TaskName$
 
 Set $INST_SystemType$ = GetSystemType
 set $INST_architecture$ = GetProductProperty("install_architecture","system specific")
- 
- 
+  
 Set $LogDir$ = "%SystemDrive%\tmp"
  
 ; ----------------------------------------------------------------
@@ -50,24 +51,25 @@ Set $ProductId$       = "cdburnerxp"
 Set $PrettyName$			= "CDBurnerXP"
 Set $PackageVersion$	= takeString(1, splitString ("%installingProdVersion%","-"))
 Set $Version$         = strPart("%installingProdVersion%", "1", calculate(strPos("%installingProdVersion%","-") + "-" + "1" ))
-Set $MinimumSpace$    = "20 MB"
+Set $MinimumSpace$    = "35 MB"
 Set $DesktopIcon$			= GetProductProperty("desktopicon", "true")
 
 ; the path were we find the product after the installation
-Set $InstallDir32$    = "%ProgramFiles32Dir%\CDBurnerXP\"
-Set $InstallDir64$    = "%ProgramFiles64Dir%\CDBurnerXP\"
+Set $InstallDir32$    = "%ProgramFiles32Dir%\CDBurnerXP"
+Set $InstallDir64$    = "%ProgramFiles64Dir%\CDBurnerXP"
 Set $LicenseRequired$ = "false"
 Set $LicensePool$     = "p_" + $ProductId$
 
 Set $Uninst_Prg$      = "unins000.exe"
-Set $Inst_Cmd$        = '/VERYSILENT /LOADINF=%ScriptPath%\default_de.cfg'
-Set $Uninst_Cmd$      = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART'
+Set $Inst_Cmd$        = '/VERYSILENT /LOADINF=%ScriptPath%\default_de.cfg /LOG='+$LogDir$+"\"+$ProductId$+".install_log.txt"
+Set $Uninst_Cmd$			= '/VERYSILENT /LOADINF=%ScriptPath%\default_de.cfg /LOG='+$LogDir$+"\"+$ProductId$+".uninstall_log.txt"
+Set $TaskName$        = "cdbxpp.exe"
 ; ----------------------------------------------------------------
 
-if FileExists("%ScriptDrive%\lib\getproductmap.opsiinc")
+if FileExists("%ScriptPath%\getproductmap.opsiinc")
   ;  read product values from configserver, such as ProductVersion
   setLogLevel = 7
-  include_insert "%ScriptDrive%\lib\getproductmap.opsiinc"
+  include_insert "%ScriptPath%\getproductmap.opsiinc"
   setLogLevel = 6
   Set $Version$	= $ProductMap_ProductVersion$
   comment "use GetProductMap-Version: "+ $Setupfile$
@@ -84,6 +86,8 @@ if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
         isFatalError
         ; Stop process and set installation status to failed
 else
+        Killtask $TaskName$
+
         if FileExists("%ScriptPath%\delsub.opsiscript")
           comment "Start uninstall sub section"
           Sub "%ScriptPath%\delsub.opsiscript"
@@ -94,8 +98,6 @@ else
                 Sub_get_licensekey
         endif
 
-				Set $Inst_Cmd$ = '/VERYSILENT /LOADINF=%ScriptPath%\default_de.cfg'
-				
 				if (($INST_SystemType$ = "x86 System") and ($INST_architecture$ = "system specific")) or ($INST_architecture$ = "both") or ($INST_architecture$ = "32 only")
 					Message "Installing " + $ProductId$ + " 32 Bit..."
 					comment "Start setup program"
@@ -115,6 +117,14 @@ else
 				if $DesktopIcon$ = "false"
 					Files_delete_desktop_icon
 				endif  
+				
+				comment "include custom post install file"
+        set $CustomPostInstall$ = getProductProperty("custom-post-install","none")
+        if not ($CustomPostInstall$ = "none")
+	        if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
+		        include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
+	        endif
+        endif
 endif
  
 [Files_delete_desktop_icon]

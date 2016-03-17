@@ -1,6 +1,6 @@
 Message "Uninstalling " + $PrettyName$ 
 
-if FileExists("$InstallDir32$\$Uninst_Prg$")
+if FileExists($InstallDir32$+"\"+$Uninst_Prg$)
   comment "Removing "+$InstallDir32$
   Winbatch_uninstall_32
   sub_check_exitcode
@@ -8,7 +8,7 @@ if FileExists("$InstallDir32$\$Uninst_Prg$")
   sub_check_exitcode
 endif
 
-if FileExists("$InstallDir64$\$Uninst_Prg$")
+if FileExists($InstallDir64$+"\"+$Uninst_Prg$)
   comment "Removing "+$InstallDir64$
   Winbatch_uninstall_64
   sub_check_exitcode
@@ -25,10 +25,10 @@ sub_check_exitcode
 [Files_uninstall_64]
 delete -sf "$InstallDir64$\"
  
-[Winbatch_uninstall_64]
+[Winbatch_uninstall_32]
 "$InstallDir32$\$Uninst_Prg$" $Uninst_Cmd$
  
-[Files_uninstall_64]
+[Files_uninstall_32]
 delete -sf "$InstallDir32$\"
 
 [Sub_check_exitcode]

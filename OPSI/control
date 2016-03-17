@@ -36,6 +36,24 @@ name: desktopicon
 description: Setting a desktop icon
 default: True
 
+[ProductProperty]
+type: unicode
+name: custom-post-install
+multivalue: False
+editable: False
+description: Define filename for include script in custom directory after installation
+values: ["none", "post-install.opsiinc"]
+default: ["none"]
+
+[ProductProperty]
+type: unicode
+name: custom-post-deinstall
+multivalue: False
+editable: False
+description: Define filename for include script in custom directory after deinstallation
+values: ["none", "post-deinstall.opsiinc"]
+default: ["none"]
+
 [Changelog]
 cdburnerxp (4.5.4.5306-1) testing; urgency=low
 
