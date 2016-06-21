@@ -1,6 +1,6 @@
 [Package]
 version: 1
-depends:
+depends: 
 incremental: False
 
 [Product]
@@ -9,10 +9,10 @@ id: dfn_cdburnerxp
 name: CDBurnerXP
 description: Program for copying and burning CDs and DVDs.
 advice: 
-version: 4.5.7.6139
+version: 4.5.7.6229
 priority: 0
 licenseRequired: False
-productClasses:
+productClasses: 
 setupScript: setup.opsiscript
 uninstallScript: uninstall.opsiscript
 updateScript: 
@@ -55,7 +55,6 @@ values: ["none", "post-deinstall.opsiinc"]
 default: ["none"]
 
 [Changelog]
-
 cdburnerxp (4.5.4.5306-1) testing; urgency=low
 
   * Initial version
