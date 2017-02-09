@@ -9,7 +9,7 @@ id: dfn_cdburnerxp
 name: CDBurnerXP
 description: Program for copying and burning CDs and DVDs.
 advice: 
-version: 4.5.7.6499
+version: 4.5.7.6521
 priority: 0
 licenseRequired: False
 productClasses: 
