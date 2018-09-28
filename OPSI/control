@@ -9,7 +9,7 @@ id: dfn_cdburnerxp
 name: CDBurnerXP
 description: Program for copying and burning CDs and DVDs.
 advice: 
-version: 4.5.8.6795
+version: 4.5.8.7035
 priority: 0
 licenseRequired: False
 productClasses: 
@@ -55,6 +55,12 @@ values: ["none", "post-deinstall.opsiinc"]
 default: ["none"]
 
 [Changelog]
+dfn_cdburnerxp (4.5.8.7035-1) stable; urgency=low
+
+Exe getauscht, Update auf 4.5.8.7035.
+
+ -- Eric Esser <eric.esser@wzb.eu>  Fri, 28 Sep 2018 18:20:47 +0000
+
 dfn_cdburnerxp (4.5.8.6795-1) stable; urgency=low
 
 Exe getauscht, Update auf 4.5.8.
